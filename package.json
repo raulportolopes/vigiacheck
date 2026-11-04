@@ -1,0 +1,6 @@
+{
+  "name": "vigiacheck",
+  "private": true,
+  "type": "module",
+  "description": "Consulta de processos trabalhistas por CPF para empresas de segurança (Infosimples + DataJud)."
+}

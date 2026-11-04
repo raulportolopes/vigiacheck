@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>VigiaCheck</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: central de conformidade. Barra lateral azul-marinho com insígnia em latão; conteúdo em painéis de cantos retos com cabeçalho em caixa-alta condensada. */
+:root {
+  --bg: #e8ecf0;
+  --surface: #ffffff;
+  --surface-2: #f2f4f7;
+  --ink: #0f1b2a;
+  --muted: #586678;
+  --line: #d0d7df;
+  --brand: #132a45;        /* azul-marinho */
+  --brand-ink: #ffffff;
+  --brand-soft: #e2e9f2;
+  --brass: #9c7a3c;        /* latão da insígnia */
+  --side: #0b1626; --side-hi: #15253b; --side-ink: #d3dbe5; --side-muted: #7d8ba0;
+  --ok: #1d6b45;  --ok-bg: #e2f1e9;
+  --warn: #8a5a00; --warn-bg: #fbf0d9;
+  --bad: #a3221b; --bad-bg: #f9e2e0;
+  --info: #24507e; --info-bg: #e3ecf6;
+  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #09101a; --surface: #101a27; --surface-2: #162333; --ink: #e2e8ef; --muted: #8b99ab; --line: #233346;
+    --brand: #3a6aa3; --brand-ink: #ffffff; --brand-soft: #172a40; --brass: #c9a35e;
+    --side: #050b13; --side-hi: #111f31; --side-ink: #d3dbe5; --side-muted: #7d8ba0;
+    --ok: #6cc795; --ok-bg: #12291e; --warn: #e9b14f; --warn-bg: #2f2410; --bad: #ef8a80; --bad-bg: #331816; --info: #8db6e3; --info-bg: #142337;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #09101a; --surface: #101a27; --surface-2: #162333; --ink: #e2e8ef; --muted: #8b99ab; --line: #233346;
+  --brand: #3a6aa3; --brand-ink: #ffffff; --brand-soft: #172a40; --brass: #c9a35e;
+  --side: #050b13; --side-hi: #111f31; --side-ink: #d3dbe5; --side-muted: #7d8ba0;
+  --ok: #6cc795; --ok-bg: #12291e; --warn: #e9b14f; --warn-bg: #2f2410; --bad: #ef8a80; --bad-bg: #331816; --info: #8db6e3; --info-bg: #142337;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14.5px; line-height: 1.5; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+a { color: inherit; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; text-transform: uppercase; }
+h1 { font-size: 2rem; font-weight: 700; letter-spacing: 0.02em; line-height: 1.1; }
+h2 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.06em; }
+h3 { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.05em; }
+.eyebrow { font-family: var(--f-display); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); }
+.eyebrow a { text-decoration: none; }
+.eyebrow a:hover { text-decoration: underline; }
+
+.app { display: grid; grid-template-columns: 248px 1fr; min-height: 100%; }
+.side { background: var(--side); color: var(--side-ink); padding-block: 22px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: 18px; display: flex; flex-direction: column; gap: 26px; position: sticky; top: 0; height: 100vh; border-right: 3px solid var(--brass); }
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo svg { flex: none; }
+.logo .wm { font-family: var(--f-display); font-weight: 700; font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1; color: #fff; }
+.logo .tag { font-size: 0.68rem; color: var(--side-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; }
+.nav { display: flex; flex-direction: column; gap: 1px; }
+.nav a { color: var(--side-ink); text-decoration: none; padding: 9px 12px; border-left: 3px solid transparent; font-family: var(--f-display); font-weight: 600; font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+.nav a:hover { background: var(--side-hi); color: #fff; }
+.nav a.on { background: var(--side-hi); border-left-color: var(--brass); color: #fff; }
+.nav .count { font-family: var(--f-mono); font-size: 0.72rem; background: var(--brass); color: var(--side); padding: 0 6px; font-weight: 500; letter-spacing: 0; }
+.company { margin-top: auto; font-size: 0.8rem; border-top: 1px solid var(--side-hi); padding-top: 14px; color: var(--side-muted); }
+.company b { color: var(--side-ink); display: block; font-weight: 600; }
+
+.strip { background: var(--side); color: var(--brass); font-family: var(--f-display); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; font-size: 0.78rem; padding-block: 5px; padding-left: max(16px, 32px); padding-right: max(16px, env(safe-area-inset-right, 0px), 32px); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.strip span + span { color: var(--side-muted); }
+main { padding-block: 0 48px; min-width: 0; }
+.wrap { max-width: 1060px; display: flex; flex-direction: column; gap: 20px; padding-top: 28px; padding-left: max(16px, 32px); padding-right: max(16px, env(safe-area-inset-right, 0px), 32px); }
+.head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.head > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.head p { margin: 2px 0 0; color: var(--muted); max-width: 64ch; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--brand); border-radius: 2px; padding: 16px 18px; min-width: 0; }
+.panel > h2 { margin: -2px 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; }
+.stat { display: flex; flex-direction: column; gap: 0; }
+.stat b { font-family: var(--f-display); font-size: 2.6rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 0.84rem; margin-top: 6px; }
+
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 16px; border-radius: 2px; cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: 0.98rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { border-color: var(--brand); }
+.btn.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.btn.primary:hover { filter: brightness(1.15); }
+.btn.small { padding: 4px 10px; font-size: 0.85rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pill { display: inline-flex; align-items: center; font-family: var(--f-display); font-size: 0.86rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 8px; border-left: 3px solid currentColor; border-radius: 1px; white-space: nowrap; line-height: 1.5; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.pill.info { background: var(--info-bg); color: var(--info); }
+.pill.idle { background: var(--surface-2); color: var(--muted); }
+.pill.run { background: var(--info-bg); color: var(--info); animation: pulse 1.1s infinite; }
+@keyframes pulse { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .pill.run { animation: none; } }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.table-wrap table { min-width: 620px; }
+.report .table-wrap table { min-width: 520px; }
+th { text-align: left; font-family: var(--f-display); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 8px 10px; border-bottom: 2px solid var(--line); white-space: nowrap; }
+td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: var(--surface-2); }
+
+.list { display: flex; flex-direction: column; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+a.row:hover .who div:first-child { text-decoration: underline; }
+.row .who { min-width: 0; }
+.row .who div:first-child { font-weight: 600; }
+.row .who div + div { font-size: 0.82rem; color: var(--muted); }
+
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-family: var(--f-display); font-size: 0.9rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.field label.check { font-family: var(--f-body); font-size: 0.9rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink); }
+.field input, .field select { border: 1px solid var(--line); background: var(--surface-2); border-radius: 2px; padding: 9px 11px; width: 100%; }
+.field input:focus, .field select:focus { border-color: var(--brand); outline: none; box-shadow: 0 0 0 2px var(--brand-soft); }
+.field small { color: var(--muted); font-size: 0.8rem; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; }
+.field .check input, .check input { margin-top: 4px; accent-color: var(--brand); width: auto; flex: none; }
+.err { color: var(--bad); font-size: 0.85rem; font-weight: 600; }
+
+.checklist { display: flex; flex-direction: column; }
+.ci { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; padding: 12px 0; border-bottom: 1px solid var(--line); align-items: center; }
+.ci:last-child { border-bottom: 0; }
+.ci .t { font-weight: 600; }
+.ci .src { font-size: 0.78rem; color: var(--muted); font-family: var(--f-mono); }
+.ci .detail { grid-column: 1 / -1; font-size: 0.86rem; color: var(--muted); }
+.ci .act { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ci .act input[type=date] { border: 1px solid var(--line); background: var(--surface-2); border-radius: 2px; padding: 4px 8px; }
+
+.notice { border-left: 3px solid var(--brand); background: var(--brand-soft); padding: 10px 14px; font-size: 0.88rem; }
+.notice.warn { border-color: var(--warn); background: var(--warn-bg); }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: 0.9rem; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.steps { display: flex; flex-wrap: wrap; font-family: var(--f-display); font-size: 0.9rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--line); background: var(--surface); width: fit-content; max-width: 100%; }
+.steps span { padding: 6px 14px; color: var(--muted); border-right: 1px solid var(--line); }
+.steps span:last-child { border-right: 0; }
+.steps span.on { background: var(--brand); color: var(--brand-ink); }
+.steps span.done { color: var(--ok); }
+.steps span.done::before { content: "✓ "; }
+.chips { display: flex; gap: 0; flex-wrap: wrap; border: 1px solid var(--line); width: fit-content; max-width: 100%; }
+.chip { border: 0; border-right: 1px solid var(--line); background: var(--surface); padding: 6px 14px; font-family: var(--f-display); font-size: 0.92rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
+.chip:last-child { border-right: 0; }
+.chip.on { background: var(--brand); color: var(--brand-ink); }
+.cost { font-family: var(--f-mono); font-size: 0.8rem; color: var(--muted); }
+.report { background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--brand); padding: 28px; max-width: 780px; }
+.report header { display: flex; justify-content: space-between; gap: 12px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.report footer { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 0.8rem; color: var(--muted); }
+.toast { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); right: calc(20px + env(safe-area-inset-right, 0px)); background: var(--side); color: #fff; border-left: 3px solid var(--brass); padding: 10px 16px; font-weight: 600; font-size: 0.9rem; z-index: 20; }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; }
+  .side { position: sticky; top: env(safe-area-inset-top, 0px); height: auto; flex-direction: row; align-items: center; padding-block: 10px; padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); gap: 14px; z-index: 5; border-right: 0; border-bottom: 3px solid var(--brass); overflow-x: auto; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--side); }
+  .logo .txt { display: none; }
+  .nav { flex-direction: row; }
+  .nav a { white-space: nowrap; padding: 6px 10px; gap: 6px; border-left: 0; border-bottom: 2px solid transparent; }
+  .nav a.on { border-bottom-color: var(--brass); }
+  .company { display: none; }
+  .strip, .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .wrap { padding-top: 20px; }
+  h1 { font-size: 1.7rem; }
+  .grid-3, .grid-2, .form { grid-template-columns: 1fr; }
+  .report { padding: 18px; }
+}
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <aside class="side">
+    <div class="logo">
+      <svg width="34" height="38" viewBox="0 0 34 38" aria-hidden="true">
+        <path d="M17 1 L32 6.5 V17.5 C32 27 25.6 33.6 17 37 C8.4 33.6 2 27 2 17.5 V6.5 Z" fill="var(--brass)"/>
+        <path d="M17 4.6 L28.8 8.9 V17.6 C28.8 25.2 23.8 30.6 17 33.5 C10.2 30.6 5.2 25.2 5.2 17.6 V8.9 Z" fill="var(--side)"/>
+        <path d="M11 18.2 L15.4 22.4 L23.4 13.8" stroke="var(--brass)" stroke-width="2.6" fill="none" stroke-linecap="square"/>
+      </svg>
+      <div class="txt"><div class="wm">VigiaCheck</div><div class="tag">Consulta de processos</div></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="company"><b>Acesso restrito</b>Pesquisas registradas</div>
+  </aside>
+  <main>
+    <div class="strip"><span>Uso interno e confidencial do RH</span><span>Fontes: certidões dos TRTs · CNJ DataJud</span></div>
+    <div class="wrap" id="view"></div>
+  </main>
+</div>
+<div class="toast" id="toast" hidden></div>
+<style>
+.search { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+.search .field input { font-size: 1.05rem; padding: 12px 14px; }
+.proc { border: 1px solid var(--line); border-left: 4px solid var(--brass); background: var(--surface); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.proc .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.proc .num { font-family: var(--f-mono); font-size: 0.82rem; color: var(--muted); overflow-wrap: anywhere; }
+.proc dl { display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px; margin: 0; font-size: 0.88rem; }
+.proc dt { color: var(--muted); }
+.proc dd { margin: 0; min-width: 0; }
+.saida { background: var(--warn-bg); border-left: 3px solid var(--warn); padding: 8px 12px; font-size: 0.9rem; }
+.saida b { font-family: var(--f-display); letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.85rem; color: var(--warn); }
+.movs { font-size: 0.85rem; color: var(--muted); margin: 0; padding-left: 18px; }
+@media (max-width: 860px) { .search { grid-template-columns: 1fr; } }
+</style>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDT = d => new Date(d).toLocaleDateString('pt-BR') + ' ' + new Date(d).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+const fmtD = s => s ? s.split('-').reverse().join('/') : '-';
+const fmtCNJ = n => n.replace(/^(\d{7})(\d{2})(\d{4})(\d)(\d{2})(\d{4})$/, '$1-$2.$3.$4.$5.$6');
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
+function cpfValido(cpf) {
+  const n = cpf.replace(/\D/g, ''); if (n.length !== 11 || /^(\d)\1+$/.test(n)) return false;
+  for (const len of [9, 10]) { let s = 0; for (let i = 0; i < len; i++) s += +n[i] * (len + 1 - i); if ((s * 10) % 11 % 10 !== +n[len]) return false; }
+  return true;
+}
+const formatCPF = v => { const n = v.replace(/\D/g, '').slice(0, 11); return n.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); };
+const store = {
+  get(k, d) { try { return JSON.parse(sessionStorage.getItem(k) ?? localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
+  set(k, v, sessao) { try { (sessao ? sessionStorage : localStorage).setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+let senha = store.get('vc-senha', null);
+let termo = store.get('vc-termo', null);
+const historico = store.get('vc-hist', []);
+const salvarHist = () => store.set('vc-hist', historico.slice(-50));
+
+const ROTAS = [['pesquisar','Pesquisar'], ['historico','Histórico'], ['termos','Termo de uso']];
+function renderNav(atual) { $('#nav').innerHTML = senha ? ROTAS.map(([id, nome]) => `<a href="#${id}" class="${atual === id ? 'on' : ''}">${nome}</a>`).join('') : ''; }
+function route() {
+  const h = location.hash.slice(1) || 'pesquisar';
+  const [base, arg] = h.split(/-(?=\d+$)/);
+  if (!senha) { renderNav(''); return telaLogin(); }
+  if (!termo) { renderNav('termos'); return telaTermos(); }
+  const v = { pesquisar, historico:telaHistorico, resultado, termos:telaTermos }[base] || pesquisar;
+  renderNav(base === 'resultado' ? 'historico' : base);
+  v(arg ? +arg : undefined); window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+
+function telaLogin() {
+  $('#view').innerHTML = `
+    <div class="head"><div><div class="eyebrow">Acesso restrito</div><h1>Entrar</h1><p>Digite a senha de acesso da sua empresa.</p></div></div>
+    <form class="panel" id="fl" novalidate style="display:flex;flex-direction:column;gap:12px;max-width:420px">
+      <div class="field"><label for="pw">Senha de acesso</label><input id="pw" type="password" autocomplete="current-password"></div>
+      <label class="check"><input type="checkbox" id="lembrar"> <span>Lembrar neste computador</span></label>
+      <div><button class="btn primary" type="submit">Entrar</button></div>
+    </form>`;
+  $('#fl').addEventListener('submit', e => {
+    e.preventDefault(); const v = $('#pw').value; if (!v) return;
+    senha = v; store.set('vc-senha', v, !$('#lembrar').checked); route();
+  });
+}
+
+function telaTermos() {
+  $('#view').innerHTML = `
+    <div class="head"><div><div class="eyebrow">${termo ? 'Aceito em ' + fmtDT(termo) : 'Antes de começar'}</div><h1>Termo de uso</h1></div></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:10px">
+      <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px">
+        <li>O VigiaCheck reúne informações de processos que já são públicas. A decisão de contratar é exclusiva da empresa.</li>
+        <li>As informações são de uso interno e confidencial do RH.</li>
+        <li>Ter entrado com ação trabalhista não pode ser usado como motivo de recusa. Isso é discriminação e gera condenação.</li>
+        <li>Cada pesquisa gera custo e fica registrada.</li>
+      </ul>
+      <label class="check"><input type="checkbox" id="tc" ${termo ? 'checked disabled' : ''}> <span>Li e aceito o termo de uso.</span></label>
+    </div>
+    ${termo ? '<div><button class="btn" id="sair">Sair deste computador</button></div>' : '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn primary" id="t-ok">Aceitar e começar</button><span class="err" id="t-err" hidden>Marque a caixa para continuar.</span></div>'}`;
+  const b = $('#t-ok'); if (b) b.addEventListener('click', () => {
+    if (!$('#tc').checked) return $('#t-err').hidden = false;
+    termo = new Date().toISOString(); store.set('vc-termo', termo); location.hash = 'pesquisar'; route();
+  });
+  const s = $('#sair'); if (s) s.addEventListener('click', () => { try { localStorage.removeItem('vc-senha'); sessionStorage.removeItem('vc-senha'); } catch (e) {} senha = null; route(); });
+}
+
+function pesquisar() {
+  $('#view').innerHTML = `
+    <div class="head"><div><h1>Pesquisar processos</h1><p>Digite o CPF do candidato. O sistema emite a Certidão Eletrônica de Ações Trabalhistas (CEAT) em cada TRT e busca os detalhes de cada processo no CNJ.</p><p class="muted" style="font-size:0.86rem">A certidão mostra ações trabalhistas movidas <b>contra</b> a pessoa (processos eletrônicos, em andamento ou arquivados provisoriamente). Ações que a pessoa moveu contra ex-empregadores não aparecem.</p></div></div>
+    <form class="panel" id="f" novalidate style="display:flex;flex-direction:column;gap:12px">
+      <div class="search">
+        <div class="field"><label for="q">CPF do candidato</label><input id="q" class="mono" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00"></div>
+        <button class="btn primary" type="submit" style="padding-block:12px">Pesquisar</button>
+      </div>
+      <label class="check"><input type="checkbox" id="fin"> <span>Uso interno do RH. O resultado não será usado para recusar o candidato por ter entrado com ação trabalhista.</span></label>
+      <span class="err" id="erro" hidden></span>
+    </form>
+    ${historico.length ? `<div class="panel"><h2>Últimas pesquisas</h2><div class="list">${historico.slice().reverse().slice(0, 5).map(linhaHist).join('')}</div></div>` : ''}`;
+  $('#q').addEventListener('input', e => e.target.value = formatCPF(e.target.value));
+  $('#f').addEventListener('submit', async e => {
+    e.preventDefault();
+    const q = $('#q').value, err = $('#erro'), fail = m => { err.textContent = m; err.hidden = false; };
+    if (!cpfValido(q)) return fail('CPF inválido. Confira os números.');
+    if (!$('#fin').checked) return fail('Confirme o uso interno para continuar.');
+    err.hidden = true;
+    const btn = $('#f button'); btn.disabled = true; btn.textContent = 'Pesquisando…';
+    try {
+      const r = await fetch('/api/consultar', { method:'POST', headers:{ 'content-type':'application/json' }, body: JSON.stringify({ cpf:q, senha }) });
+      const data = await r.json().catch(() => ({ erro:'Resposta inválida do servidor.' }));
+      if (r.status === 401) { senha = null; try { localStorage.removeItem('vc-senha'); sessionStorage.removeItem('vc-senha'); } catch (e) {} toast('Senha incorreta'); return route(); }
+      if (!r.ok) return fail(data.erro || 'Não foi possível pesquisar agora. Tente de novo em alguns minutos.');
+      const id = (historico.at(-1)?.id || 0) + 1;
+      historico.push({ id, ...data }); salvarHist();
+      location.hash = 'resultado-' + id;
+    } catch (ex) { fail('Sem conexão com o servidor. Verifique a internet e tente de novo.'); }
+    finally { btn.disabled = false; btn.textContent = 'Pesquisar'; }
+  });
+}
+
+function linhaHist(h) {
+  const n = h.processos.length;
+  return `<a class="row" href="#resultado-${h.id}" style="text-decoration:none">
+    <div class="who"><div>${esc(h.nome || 'Nome não informado')}</div><div class="mono">${esc(h.cpf)} · ${fmtDT(h.consultado_em)}</div></div>
+    <span class="pill ${n ? 'warn' : 'ok'}">${n ? n + ' processo' + (n > 1 ? 's' : '') : 'Nenhum processo'}</span></a>`;
+}
+
+function resultado(id) {
+  const h = historico.find(x => x.id === id); if (!h) return pesquisar();
+  $('#view').innerHTML = `
+    <div class="head"><div><div class="eyebrow"><a href="#historico">Histórico</a> › Resultado</div><h1>${esc(h.nome || 'Candidato')}</h1>
+      <p class="mono">${esc(h.cpf)} · Pesquisado em ${fmtDT(h.consultado_em)}</p></div><a class="btn" href="#pesquisar">Nova pesquisa</a></div>
+    <div class="panel"><h2>Certidões de ações trabalhistas (CEAT)</h2><div class="list">
+      ${h.certidoes.map(c => `<div class="row"><div class="who"><div>TRT da ${esc(c.trt)}ª Região</div><div>${esc(c.mensagem || '')}</div></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${!c.ok ? '<span class="pill bad">Não foi possível emitir</span>' : c.negativa ? '<span class="pill ok">Nada consta</span>' : `<span class="pill warn">Consta ${c.total || c.numeros?.length || ''} processo${(c.total || c.numeros?.length || 0) === 1 ? '' : 's'}</span>`}
+        ${c.certidao_pdf ? `<a class="btn small" href="${esc(c.certidao_pdf)}" target="_blank" rel="noopener">Ver certidão</a>` : ''}</div></div>`).join('')}
+    </div></div>
+    <div class="notice">A certidão lista ações trabalhistas movidas contra a pessoa. Uso interno e confidencial do RH.</div>
+    <div style="display:flex;flex-direction:column;gap:12px">${h.processos.map(cardProc).join('')}</div>`;
+}
+
+function cardProc(p) {
+  if (!p.encontrado) return `<article class="proc"><div class="num">Processo ${fmtCNJ(p.numero)}</div><p class="muted" style="margin:0">Detalhes ainda não disponíveis na base do CNJ. Consulte pelo número no site do tribunal.</p></article>`;
+  return `<article class="proc">
+    <div class="top"><div><span class="pill warn">Contra a pessoa</span> <b>${esc(p.assuntos.join(' · ') || 'Assunto não informado')}</b></div></div>
+    <div class="num">Processo ${fmtCNJ(p.numero)}</div>
+    <dl><dt>Tribunal</dt><dd>${esc(p.tribunal)} · ${esc(p.orgao || '')}</dd><dt>Classe</dt><dd>${esc(p.classe || '-')}</dd><dt>Ajuizado em</dt><dd class="mono">${fmtD(p.ajuizamento)}</dd></dl>
+    ${p.movimentos.length ? `<ul class="movs">${p.movimentos.map(m => `<li>${fmtD(m.data)}: ${esc(m.nome)}</li>`).join('')}</ul>` : ''}
+  </article>`;
+}
+
+function telaHistorico() {
+  $('#view').innerHTML = `
+    <div class="head"><div><h1>Histórico</h1><p>Pesquisas feitas neste computador.</p></div><a class="btn primary" href="#pesquisar">Nova pesquisa</a></div>
+    <div class="panel">${historico.length ? `<div class="list">${historico.slice().reverse().map(linhaHist).join('')}</div>` : '<p class="muted" style="margin:0">Nenhuma pesquisa ainda.</p>'}</div>`;
+}
+
+route();
+</script>
+
+</body>
+</html>

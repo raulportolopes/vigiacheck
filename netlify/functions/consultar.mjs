@@ -27,12 +27,19 @@ function cpfValido(cpf) {
   return true;
 }
 
-async function infosimplesCEAT(trt, cpf, token) {
-  const url = `https://api.infosimples.com/api/v2/consultas/tribunal/trt${trt}/ceat-digital`;
+// Cada TRT tem o serviço com um nome: uns "ceat-digital" (ex.: TRT2), outros "ceat" (ex.: TRT15).
+// Tenta o primeiro e, se a Infosimples disser que o serviço não existe, tenta o outro.
+async function chamarCEAT(trt, servico, cpf, token) {
+  const url = `https://api.infosimples.com/api/v2/consultas/tribunal/trt${trt}/${servico}`;
   const body = new URLSearchParams({ token, cpf: cpf.replace(/\D/g, ''), timeout: '50' });
   // O Netlify encerra a função em cerca de 60 s, então cada certidão tem até 55 s.
   const r = await fetch(url, { method: 'POST', body, signal: AbortSignal.timeout(55000) });
-  const data = await r.json().catch(() => ({}));
+  return r.json().catch(() => ({}));
+}
+
+async function infosimplesCEAT(trt, cpf, token) {
+  let data = await chamarCEAT(trt, 'ceat-digital', cpf, token);
+  if (/servi[cç]o informado/i.test(data.code_message || '')) data = await chamarCEAT(trt, 'ceat', cpf, token);
   const texto = JSON.stringify(data);
   const numeros = [...new Set((texto.match(CNJ_RE) || []).map(n => n.replace(/\D/g, '')))];
   return {
